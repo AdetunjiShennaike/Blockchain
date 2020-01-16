@@ -143,7 +143,7 @@ def mine():
     if blockchain.valid_proof(last_block_string, data['proof']):
       # Forge the new Block by adding it to the chain with the proof
       previous_hash = blockchain.hash(blockchain.last_block)
-      block = blockchain.new_block(proof, previous_hash)
+      block = blockchain.new_block(data['proof'], previous_hash)
       response = {
           # TODO: Send a JSON response with the new block
           'kudos': 'Congrats on your new block!',

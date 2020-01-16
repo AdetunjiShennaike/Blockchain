@@ -154,8 +154,25 @@ blockchain = Blockchain()
 def new_transaction():
   data = request.get_json()
 
-  
+  required = ['sender', 'recipient', 'amount']
+  if not all(k in data for k in required):
+    response = {
+      'message': 'Missing stuff'
+    }
+    return jsonify(response), 400
 
+  #Make a new transaction
+  index = blockchain.new_transaction(
+    data['sender'], 
+    data['recipient'], 
+    data['amount']
+  )
+
+  response = {
+    'message': f'Transaction located here: {index}'
+  }
+
+  return jsonify(response), 201
 
 
 @app.route('/mine', methods=['POST'])
@@ -168,14 +185,19 @@ def mine():
       return jsonify(response), 400
 
     proof = data['proof']
-    last_block_string = json.dumps(blockchain.last_block, sort_keys=True)
+    last_block = blockchain.last_block
+    last_block_string = json.dumps(last_block, sort_keys=True)
 
     if blockchain.valid_proof(last_block_string, data['proof']):
       # Forge the new Block by adding it to the chain with the proof
       previous_hash = blockchain.hash(blockchain.last_block)
       block = blockchain.new_block(proof, previous_hash)
 
-      blockchain.new_transaction(sender = '0', recipient= data['id'], amount= 42)
+      blockchain.new_transaction(
+        sender = '0', 
+        recipient= data['id'], 
+        amount= 42
+      )
 
       response = {
           # TODO: Send a JSON response with the new block

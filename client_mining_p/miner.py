@@ -61,7 +61,6 @@ if __name__ == '__main__':
       lambda_coin = int(content[-1])
     else:
       lambda_coin = 0
-    print('content', content, lambda_coin)
     f.close
 
     # Run forever until interrupted
@@ -100,4 +99,4 @@ if __name__ == '__main__':
           print(f'Plus 1 lambda coins in {timeTaken} secs \n You now have {lambda_coin} coins')
         else:
           print(data['message'])
-        breakpoint()
+        break

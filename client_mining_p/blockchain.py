@@ -83,21 +83,6 @@ class Blockchain(object):
     def last_block(self):
         return self.chain[-1]
 
-    # def proof_of_work(self, block):
-    #     """
-    #     Simple Proof of Work Algorithm
-    #     Stringify the block and look for a proof.
-    #     Loop through possibilities, checking each one against `valid_proof`
-    #     in an effort to find a number that is a valid proof
-    #     :return: A valid proof for the provided block
-    #     """
-    #     # TODO
-    #     block_string = json.dumps(block)
-    #     proof = 0
-    #     while self.valid_proof(block_string, proof) is False:
-    #         proof += 1
-    #     return proof
-
     @staticmethod
     def valid_proof(block_string, proof):
         """
@@ -137,10 +122,9 @@ def mine():
       }
       return jsonify(response), 400
 
-    proof = data['proof']
     last_block_string = json.dumps(blockchain.last_block, sort_keys=True)
 
-    if blockchain.valid_proof(last_block_string, data['proof']):
+    if blockchain.valid_proof(last_block_string, data['proof']) and len(blockchain.chain) == blockchain.last_block['index']:
       # Forge the new Block by adding it to the chain with the proof
       previous_hash = blockchain.hash(blockchain.last_block)
       block = blockchain.new_block(data['proof'], previous_hash)

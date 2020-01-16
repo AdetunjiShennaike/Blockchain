@@ -1,5 +1,6 @@
 import hashlib
 import requests
+from time import time
 
 import sys
 import json
@@ -49,13 +50,23 @@ if __name__ == '__main__':
 
     # Load ID
     f = open("my_id.txt", "r")
-    id = f.read()
+    id = f.readline()
     print("ID is", id)
     f.close()
+
+    # Load coins and transactions
+    f = open('my_id.txt', 'r')
+    content = f.readlines()
+    transactions = ['amount' in s for s in content]
+    if 'lambda_coin' in content:
+      lambda_coin = content[len(content)-1] 
+    print('content', content)
+    f.close
 
     # Run forever until interrupted
     while True:
         r = requests.get(url=node + "/last_block")
+        start = time()
         # Handle non-json response
         try:
             data = r.json()
@@ -74,9 +85,15 @@ if __name__ == '__main__':
 
         r = requests.post(url=node + "/mine", json=post_data)
         data = r.json()
-        breakpoint()
 
         # TODO: If the server responds with a 'message' 'New Block Forged'
         # add 1 to the number of coins mined and print it.  Otherwise,
         # print the message from the server.
-        pass
+        if 'New Block Forged' in data['message']:
+          timeTaken = data['new_block']['timestamp'] - start
+          # lambda_coin += 1
+          # a = open('my_id.txt', 'a')
+          print(f'plus 1 lambda coin in {timeTaken} secs')
+        else:
+          print(data['message'])
+        breakpoint()

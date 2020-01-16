@@ -83,21 +83,6 @@ class Blockchain(object):
     def last_block(self):
         return self.chain[-1]
 
-    # def proof_of_work(self, block):
-    #     """
-    #     Simple Proof of Work Algorithm
-    #     Stringify the block and look for a proof.
-    #     Loop through possibilities, checking each one against `valid_proof`
-    #     in an effort to find a number that is a valid proof
-    #     :return: A valid proof for the provided block
-    #     """
-    #     # TODO
-    #     block_string = json.dumps(block)
-    #     proof = 0
-    #     while self.valid_proof(block_string, proof) is False:
-    #         proof += 1
-    #     return proof
-
     @staticmethod
     def valid_proof(block_string, proof):
         """
@@ -130,24 +115,31 @@ blockchain = Blockchain()
 
 @app.route('/mine', methods=['POST'])
 def mine():
-    # Run the proof of work algorithm to get the next proof
-
-    # Forge the new Block by adding it to the chain with the proof
-
     data = request.get_json()
-
-    if data.proof and data.id:
+    if not data['proof'] and not data['id']:
       response = {
-          # TODO: Send a JSON response with the new block
-          'new_block': block
-      }
-      return jsonify(response), 200
-    
-    else:
-      response = {
-        'message': 'Provide proof and ID'
+        'message': 'Provide Proof and ID'
       }
       return jsonify(response), 400
+
+    last_block_string = json.dumps(blockchain.last_block, sort_keys=True)
+
+    if blockchain.valid_proof(last_block_string, data['proof']) and len(blockchain.chain) == blockchain.last_block['index']:
+      # Forge the new Block by adding it to the chain with the proof
+      previous_hash = blockchain.hash(blockchain.last_block)
+      block = blockchain.new_block(data['proof'], previous_hash)
+      response = {
+          # TODO: Send a JSON response with the new block
+          'kudos': 'Congrats on your new block!',
+          'message': 'New Block Forged!',
+          'new_block': block
+      }
+    else:
+      response = {
+        'message': 'No Block for you!'
+      }
+    return jsonify(response), 200
+    
 
 
 @app.route('/chain', methods=['GET'])
@@ -159,10 +151,10 @@ def full_chain():
     }
     return jsonify(response), 200
 
-@app.route('/lastblock', methods=['GET'])
+@app.route('/last_block', methods=['GET'])
 def last_block():
     response = {
-        'last': blockchain.last_block
+        'last_block': blockchain.last_block
     }
     return jsonify(response), 200
 

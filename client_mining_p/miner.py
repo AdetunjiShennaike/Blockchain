@@ -54,19 +54,20 @@ if __name__ == '__main__':
     print("ID is", id)
     f.close()
 
-    # Load coins and transactions
+    # Load coins
     f = open('my_id.txt', 'r')
     content = f.readlines()
-    transactions = ['amount' in s for s in content]
-    if 'lambda_coin' in content:
-      lambda_coin = content[len(content)-1] 
-    print('content', content)
+    if 'Lambda' in str(content):
+      lambda_coin = int(content[-1])
+    else:
+      lambda_coin = 0
+    print('content', content, lambda_coin)
     f.close
 
     # Run forever until interrupted
     while True:
-        r = requests.get(url=node + "/last_block")
         start = time()
+        r = requests.get(url=node + "/last_block")
         # Handle non-json response
         try:
             data = r.json()
@@ -90,10 +91,13 @@ if __name__ == '__main__':
         # add 1 to the number of coins mined and print it.  Otherwise,
         # print the message from the server.
         if 'New Block Forged' in data['message']:
-          timeTaken = data['new_block']['timestamp'] - start
-          # lambda_coin += 1
-          # a = open('my_id.txt', 'a')
-          print(f'plus 1 lambda coin in {timeTaken} secs')
+          end = data['new_block']['timestamp']
+          timeTaken = end - start
+          lambda_coin += 1
+          a = open('my_id.txt', 'a')
+          a.write(f'Lambda coin as of {str(end)} \n {lambda_coin} \n')
+          a.close
+          print(f'Plus 1 lambda coins in {timeTaken} secs \n You now have {lambda_coin} coins')
         else:
           print(data['message'])
         breakpoint()

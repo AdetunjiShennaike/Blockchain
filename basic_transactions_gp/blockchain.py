@@ -122,7 +122,7 @@ class Blockchain(object):
       })
 
       # return len(self.chain)
-      return self.last_block['index'+1]
+      return self.last_block['index'] + 1
 
 
 # Instantiate our Node
@@ -172,8 +172,10 @@ def mine():
     proof = data['proof']
     last_block = blockchain.last_block
     last_block_string = json.dumps(last_block, sort_keys=True)
+    length = len(blockchain.chain)
+    index = blockchain.last_block['index']
 
-    if blockchain.valid_proof(last_block_string, data['proof']):
+    if blockchain.valid_proof(last_block_string, proof) and length == index:
       # Forge the new Block by adding it to the chain with the proof
       previous_hash = blockchain.hash(blockchain.last_block)
       block = blockchain.new_block(proof, previous_hash)
@@ -181,7 +183,7 @@ def mine():
       blockchain.new_transaction(
         sender = '0', 
         recipient= data['id'], 
-        amount= 42
+        amount= 1
       )
 
       response = {

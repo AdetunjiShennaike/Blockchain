@@ -136,17 +136,24 @@ def mine():
         'message': 'Provide Proof and ID'
       }
       return jsonify(response), 400
-    proof = data['proof']
-    # Forge the new Block by adding it to the chain with the proof
-    previous_hash = blockchain.hash(blockchain.last_block)
-    block = blockchain.new_block(proof, previous_hash)
 
-    
-    response = {
-        # TODO: Send a JSON response with the new block
-        'message': 'Congrats on your new block!'
-        'new_block': block
-    }
+    proof = data['proof']
+    last_block_string = json.dumps(blockchain.last_block, sort_keys=True)
+
+    if blockchain.valid_proof(last_block_string, data['proof']):
+      # Forge the new Block by adding it to the chain with the proof
+      previous_hash = blockchain.hash(blockchain.last_block)
+      block = blockchain.new_block(proof, previous_hash)
+      response = {
+          # TODO: Send a JSON response with the new block
+          'kudos': 'Congrats on your new block!',
+          'message': 'New Block Forged!',
+          'new_block': block
+      }
+    else:
+      response = {
+        'message': 'No Block for you!'
+      }
     return jsonify(response), 200
     
 
